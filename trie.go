@@ -36,7 +36,29 @@ func (root *TrieNode) Contains(test_me string) bool {
     return false
 }
 
-func (root *TrieNode) Insert(insert_me string) bool {
+func (root *TrieNode) Preorder() {
+    for _, child := range root.children {
+        if child.val != "" {
+            fmt.Println(child.val)
+        }
+        child.Preorder()
+    }
+}
+
+func (root *TrieNode) WithPrefix(prefix string) {
+    node := root
+    strlen := len(prefix)
+    i := 0
+    for ; i < strlen; i++ {
+        nextNode, ok := node.children[prefix[i]]
+        if ok {
+            node = nextNode
+        }
+    }
+    node.Preorder()
+}
+
+func (root *TrieNode) Insert(insert_me string) {
     node := root
     strlen := len(insert_me)
     i := 0
@@ -55,7 +77,6 @@ func (root *TrieNode) Insert(insert_me string) bool {
         node = node.children[insert_me[i]]
     }
     node.val = insert_me
-    return true
 }
 
 func build_tree(dict []string) *TrieNode {
@@ -81,13 +102,17 @@ func readLines(path string) ([]string, error) {
     }
     return lines, scanner.Err()
 }
+
 func main() {
     lines, err := readLines("english.dict")
     if err == nil {
-        fmt.Println(lines[2000])
         tree := build_tree(lines)
         fmt.Println("hello is English? ", tree.Contains("hello"))
         fmt.Println("aardvark is English? ", tree.Contains("aardvark"))
         fmt.Println("haygoolig is English? ", tree.Contains("haygoolig"))
+        fmt.Println("What words start with aard?")
+        tree.WithPrefix("aard")
+        fmt.Println("What words start with red?")
+        tree.WithPrefix("red")
     }
 }
