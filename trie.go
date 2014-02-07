@@ -4,6 +4,7 @@ import (
     "bufio"
     "fmt"
     "os"
+    "strings"
 )
 
 type TrieNode struct {
@@ -106,12 +107,21 @@ func main() {
         fmt.Printf("Words that start with %s?\n", word)
         tree.WithPrefix(word)
     }
-    fmt.Println("hello is English? ", tree.Contains("hello"))
-    fmt.Println("aardvark is English? ", tree.Contains("aardvark"))
-    fmt.Println("haygoolig is English? ", tree.Contains("haygoolig"))
-    findLongestPrefix("exterosis")
-    findLongestPrefix("whitney")
-    findLongestPrefix("alakas")
-    findWordsWithPrefix("arbitrag")
-    findWordsWithPrefix("zy")
+    reader := bufio.NewReader(os.Stdin)
+    for {
+        fmt.Println("Enter your query for the trie")
+        line, _ := reader.ReadString('\n')
+        line = strings.TrimRight(line, "\n")
+        words := strings.Split(line, " ")
+        cmd, arg := words[0], words[1]
+        if strings.Contains(cmd, "contains") {
+            fmt.Printf("%s is English? %t\n", arg, tree.Contains(arg))
+        }
+        if strings.Contains(cmd, "longest_prefix") {
+            findLongestPrefix(arg)
+        }
+        if strings.Contains(cmd, "with_prefix") {
+            findWordsWithPrefix(arg)
+        }
+    }
 }
