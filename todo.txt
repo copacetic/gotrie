@@ -1,6 +1,4 @@
-1. Create Find and use that instead of repeating find code everywhere.
-2. Use an ordered map so we can get the nice sorting properties of tries.
-3. Add longest prefix matching.
-4. Add deletion.
-5. Add spec.
-6. Beautify and comment.
+1. Use an ordered map so we can get the nice sorting properties of tries.
+2. Add deletion.
+3. Add spec.
+4. Beautify and comment.
