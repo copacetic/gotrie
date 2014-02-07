@@ -20,17 +20,8 @@ func NewTrieNode() *TrieNode {
 }
 
 func (root *TrieNode) Contains(test_me string) bool {
-    node := root
-    strlen := len(test_me)
-    for i := 0; i < strlen; i++ {
-        nextNode, ok := node.children[test_me[i]]
-        if ok {
-            node = nextNode
-        } else {
-            return false
-        }
-    }
-    if node.val == test_me {
+    prefix_length, node := root.LongestPrefix(test_me)
+    if prefix_length == len(test_me) && node.val == test_me {
         return true
     }
     return false
@@ -45,7 +36,7 @@ func (root *TrieNode) Preorder() {
     }
 }
 
-func (root *TrieNode) WithPrefix(prefix string) {
+func (root *TrieNode) LongestPrefix(prefix string) (int, *TrieNode) {
     node := root
     strlen := len(prefix)
     i := 0
@@ -53,28 +44,27 @@ func (root *TrieNode) WithPrefix(prefix string) {
         nextNode, ok := node.children[prefix[i]]
         if ok {
             node = nextNode
-        }
-    }
-    node.Preorder()
-}
-
-func (root *TrieNode) Insert(insert_me string) {
-    node := root
-    strlen := len(insert_me)
-    i := 0
-    for ; i < strlen; i++ {
-        nextNode, ok := node.children[insert_me[i]]
-        if ok {
-            node = nextNode
         } else {
             break
         }
     }
+    return i, node
+}
 
-    for ; i < strlen; i++ {
+func (root *TrieNode) WithPrefix(prefix string) {
+    prefix_length, node := root.LongestPrefix(prefix)
+    if prefix_length == len(prefix) {
+        node.Preorder()
+    }
+}
+
+func (root *TrieNode) Insert(insert_me string) {
+    prefix_length, node := root.LongestPrefix(insert_me)
+
+    for ; prefix_length < len(insert_me); prefix_length++ {
         temp := NewTrieNode()
-        node.children[insert_me[i]] = temp
-        node = node.children[insert_me[i]]
+        node.children[insert_me[prefix_length]] = temp
+        node = node.children[insert_me[prefix_length]]
     }
     node.val = insert_me
 }
@@ -92,7 +82,6 @@ func readLines(path string) ([]string, error) {
     if err != nil {
         return nil, err
     }
-    fmt.Println("Loaded file!")
     defer file.Close()
 
     var lines []string
@@ -105,14 +94,24 @@ func readLines(path string) ([]string, error) {
 
 func main() {
     lines, err := readLines("english.dict")
-    if err == nil {
-        tree := build_tree(lines)
-        fmt.Println("hello is English? ", tree.Contains("hello"))
-        fmt.Println("aardvark is English? ", tree.Contains("aardvark"))
-        fmt.Println("haygoolig is English? ", tree.Contains("haygoolig"))
-        fmt.Println("What words start with aard?")
-        tree.WithPrefix("aard")
-        fmt.Println("What words start with red?")
-        tree.WithPrefix("red")
+    if err != nil {
+        panic(err)
     }
+    tree := build_tree(lines)
+    findLongestPrefix := func(word string) {
+        i, _ := tree.LongestPrefix(word)
+        fmt.Printf("Longest prefix match for %s? %s\n", word, word[:i])
+    }
+    findWordsWithPrefix := func(word string) {
+        fmt.Printf("Words that start with %s?\n", word)
+        tree.WithPrefix(word)
+    }
+    fmt.Println("hello is English? ", tree.Contains("hello"))
+    fmt.Println("aardvark is English? ", tree.Contains("aardvark"))
+    fmt.Println("haygoolig is English? ", tree.Contains("haygoolig"))
+    findLongestPrefix("exterosis")
+    findLongestPrefix("whitney")
+    findLongestPrefix("alakas")
+    findWordsWithPrefix("arbitrag")
+    findWordsWithPrefix("zy")
 }
